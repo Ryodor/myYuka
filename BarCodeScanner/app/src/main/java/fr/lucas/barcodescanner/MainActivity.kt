@@ -1,5 +1,6 @@
 package fr.lucas.barcodescanner
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -9,12 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.squareup.moshi.Moshi
 import kotlinx.android.synthetic.main.activity_main.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
@@ -62,43 +65,34 @@ class MainActivity : AppCompatActivity() {
                     Log.v("reqResponse", "Failed Request: $t")
                 }
             })*/
-            //var intent = Intent(this, CameraActivity::class.java)
-            //startActivity(intent)
-            var dialog = FireMissilesDialogFragment()
-            //dialog.show()
+            var intent = Intent(this, CameraActivity::class.java)
+            startActivityForResult(intent, 1)
 
         }
 
-        //viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
-        //viewModel.getState().observe(this, Observer { updateUi(it!!) })
+        viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
+        viewModel.getState().observe(this, Observer { updateUi(it!!) })
     }
 
-    /*private fun updateUi(state: MainViewModelState) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+            if (requestCode == 1) {
+               val barcode = data?.getStringExtra("barcode")!!
+                Log.v("coucou", "bug")
+                viewModel.findProduct(barcode)
+            }
+
+
+        }
+
+    private fun updateUi(state: MainViewModelState) {
         return when(state){
             is MainViewModelState.Success -> {
-                Toast.makeText(this@MainActivity, "oaoaooa", Toast.LENGTH_SHORT).show()
+                var a = state.foodFacts
+                Toast.makeText(this@MainActivity, a?.product?.product_name.toString(), LENGTH_SHORT).show()
             }
         }
-    }*/
-}
-
-class FireMissilesDialogFragment : DialogFragment() {
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            // Use the Builder class for convenient dialog construction
-            val builder = AlertDialog.Builder(it)
-            builder.setMessage("aaaaaaaa")
-                .setPositiveButton("bbbbbb",
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // FIRE ZE MISSILES!
-                    })
-                .setNegativeButton("cccccc",
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // User cancelled the dialog
-                    })
-            // Create the AlertDialog object and return it
-            builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
     }
 }
+
+
