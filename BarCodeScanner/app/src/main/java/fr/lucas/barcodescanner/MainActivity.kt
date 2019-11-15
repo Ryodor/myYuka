@@ -1,14 +1,18 @@
 package fr.lucas.barcodescanner
 
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.squareup.moshi.Moshi
@@ -58,19 +62,10 @@ class MainActivity : AppCompatActivity() {
                     Log.v("reqResponse", "Failed Request: $t")
                 }
             })*/
-
-            ///Verif Droit CAMERA
-            /*if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this , android.Manifest.permission.CAMERA)){
-
-            } else {
-              ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), 1)
-            }
-            } else {
-                Toast.makeText(this@MainActivity, "Droit activé", Toast.LENGTH_SHORT).show()
-                var intent = Intent(this, CameraActivity::class.java)
-                startActivity(intent)
-            }*/
+            //var intent = Intent(this, CameraActivity::class.java)
+            //startActivity(intent)
+            var dialog = FireMissilesDialogFragment()
+            //dialog.show()
 
         }
 
@@ -85,4 +80,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }*/
+}
+
+class FireMissilesDialogFragment : DialogFragment() {
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            // Use the Builder class for convenient dialog construction
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage("aaaaaaaa")
+                .setPositiveButton("bbbbbb",
+                    DialogInterface.OnClickListener { dialog, id ->
+                        // FIRE ZE MISSILES!
+                    })
+                .setNegativeButton("cccccc",
+                    DialogInterface.OnClickListener { dialog, id ->
+                        // User cancelled the dialog
+                    })
+            // Create the AlertDialog object and return it
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
 }

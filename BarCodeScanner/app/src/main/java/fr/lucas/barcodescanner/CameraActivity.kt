@@ -4,6 +4,9 @@ import android.Manifest
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import android.os.Bundle
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
@@ -24,16 +27,25 @@ import retrofit2.Response
 
 private const val TAG = "CameraActivity"
 private const val scanResult = "3228886030011"
+private val MY_PERMISSION_REQUEST = 0
 
 class CameraActivity : Activity(), ZXingScannerView.ResultHandler {
     private var mScannerView: ZXingScannerView? = null
 
     public override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-
         mScannerView = ZXingScannerView(this)   // Programmatically initialize the scanner view
         setContentView(mScannerView)                // Set the scanner view as the content view
 
+        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), MY_PERMISSION_REQUEST)
+        /*if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this , android.Manifest.permission.CAMERA)){
+
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), MY_PERMISSION_REQUEST)
+            }
+        } else {
+        }*/
     }
 
     public override fun onResume() {
@@ -48,7 +60,9 @@ class CameraActivity : Activity(), ZXingScannerView.ResultHandler {
     }
 
     override fun handleResult(rawResult: Result) {
-       /* val url = "https://world.openfoodfacts.org/api/v0/product/737628064502.json/"
+        var resultCode = rawResult.text
+        ///Req Api
+        val url = " https://world.openfoodfacts.org/api/v0/"
 
         val retrofit = Retrofit.Builder()
             .baseUrl(url)
@@ -56,29 +70,61 @@ class CameraActivity : Activity(), ZXingScannerView.ResultHandler {
             .build()
 
         val service = retrofit.create<FoodFactsService>(FoodFactsService::class.java)
-        val foodFactsRequest = service.listFoodFacts()
+        //val foodFactsRequest = service.listFoodFacts("3228886030011")
+        val foodFactsRequest = service.listFoodFacts(resultCode)
 
-        foodFactsRequest.enqueue(object: Callback<List<FoodFacts>>{
+        foodFactsRequest.enqueue(object: Callback<FoodFacts> {
             override fun onResponse(
-                call: Call<List<FoodFacts>>,
-                response: Response<List<FoodFacts>>
+                call: Call<FoodFacts>,
+                response: Response<FoodFacts>
             ) {
-                Log.v("reqResponse", response.body().toString())
+                if(response.isSuccessful()){
+                    /*val alertDialog: AlertDialog? = this@CameraActivity?.let {
+                        val builder = AlertDialog.Builder(it)
+                        builder.apply {
+                            setPositiveButton("Retour",
+                                DialogInterface.OnClickListener { dialog, id ->
+                                    // User clicked OK button
+                                })
+                            setNegativeButton("Continuer à Scanner",
+                                DialogInterface.OnClickListener { dialog, id ->
+                                    // User cancelled the dialog
+                                })
+                        }
+                        // Set other dialog properties
+
+                        // Create the AlertDialog
+                        builder.create()
+                    }
+                    alertDialog?.create()*/
+                    Log.v("reqResponse", response.body()?.product?.product_name)
+                }
             }
 
-            override fun onFailure(call: Call<List<FoodFacts>>, t: Throwable) {
-                error("Failed Request")
+            override fun onFailure(call: Call<FoodFacts>, t: Throwable) {
+                Log.v("reqResponse", "Failed Request: $t")
             }
-        })*/
-
-        // Do something with the result here
-        Log.v(TAG, rawResult.getText()) // Prints scan results
-        Log.v(
-            TAG,
-            rawResult.getBarcodeFormat().toString()
-        ) // Prints the scan format (qrcode, pdf417 etc.)
+        })
 
         // If you would like to resume scanning, call this method below:
         mScannerView!!.resumeCameraPreview(this)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            MY_PERMISSION_REQUEST -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+
+                } else {
+                    var act = Intent(this, MainActivity::class.java)
+                    startActivity(act)
+                }
+                return
+            }
+        }
     }
 }
