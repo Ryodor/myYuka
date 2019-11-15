@@ -59,6 +59,14 @@ class CameraActivity : Activity(), ZXingScannerView.ResultHandler {
         mScannerView!!.stopCamera()           // Stop camera on pause
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent()
+        intent.putExtra("barcode", "")
+        setResult(RESULT_CANCELED)
+        finish()
+    }
+
     override fun handleResult(rawResult: Result) {
         var resultCode = rawResult.text
 

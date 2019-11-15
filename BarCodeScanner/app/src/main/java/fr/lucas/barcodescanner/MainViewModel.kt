@@ -18,22 +18,15 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 sealed class MainViewModelState {
     data class Success(val foodFacts: FoodFacts?): MainViewModelState()
+    data class Failure(val error: String): MainViewModelState()
 }
 
-class MainViewModel: ViewModel() {
+class MainViewModel(private val service: FoodFactsService): ViewModel() {
     private val state = MutableLiveData<MainViewModelState>()
     fun getState(): LiveData<MainViewModelState> = state
 
     fun findProduct(barcode: String) {
-        ///Req Api
-        val url = " https://world.openfoodfacts.org/api/v0/"
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-
-        val service = retrofit.create<FoodFactsService>(FoodFactsService::class.java)
         //val foodFactsRequest = service.listFoodFacts("3228886030011")
         val foodFactsRequest = service.listFoodFacts(barcode)
 
@@ -44,12 +37,12 @@ class MainViewModel: ViewModel() {
             ) {
                 if(response.isSuccessful()){
                     state.value = MainViewModelState.Success(response.body())
-                    Log.v("reqResponse", response.body()?.product?.product_name)
+                    //Log.v("reqResponse", response.body()!!.product.product_name)
                 }
             }
 
             override fun onFailure(call: Call<FoodFacts>, t: Throwable) {
-                Log.v("reqResponse", "Failed Request: $t")
+                state.value = MainViewModelState.Failure(error = "error")
             }
         })
     }
