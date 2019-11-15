@@ -70,6 +70,16 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        ///Req Api
+        val url = " https://world.openfoodfacts.org/api/v0/"
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(url)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+
+        val service = retrofit.create<FoodFactsService>(FoodFactsService::class.java)
+
         viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
         viewModel.getState().observe(this, Observer { updateUi(it!!) })
     }
@@ -77,10 +87,13 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
             if (requestCode == 1) {
-               val barcode = data?.getStringExtra("barcode")!!
-                Log.v("coucou", "bug")
-                viewModel.findProduct(barcode)
-            }
+                if(resultCode == Activity.RESULT_OK){
+                    val barcode = data?.getStringExtra("barcode")!!
+                    Log.v("coucou", "bug")
+                    viewModel.findProduct(barcode)
+                } else if (resultCode == Activity.RESULT_CANCELED)
+                    Toast.makeText(this@MainActivity, "Scan annulé", LENGTH_SHORT).show()
+                }
 
 
         }
@@ -91,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                 var a = state.foodFacts
                 Toast.makeText(this@MainActivity, a?.product?.product_name.toString(), LENGTH_SHORT).show()
             }
+            is MainViewModelState.Failure -> TODO()
         }
     }
 }
