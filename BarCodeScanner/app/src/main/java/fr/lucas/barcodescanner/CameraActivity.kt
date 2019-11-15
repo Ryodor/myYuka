@@ -61,50 +61,11 @@ class CameraActivity : Activity(), ZXingScannerView.ResultHandler {
 
     override fun handleResult(rawResult: Result) {
         var resultCode = rawResult.text
-        ///Req Api
-        val url = " https://world.openfoodfacts.org/api/v0/"
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-
-        val service = retrofit.create<FoodFactsService>(FoodFactsService::class.java)
-        //val foodFactsRequest = service.listFoodFacts("3228886030011")
-        val foodFactsRequest = service.listFoodFacts(resultCode)
-
-        foodFactsRequest.enqueue(object: Callback<FoodFacts> {
-            override fun onResponse(
-                call: Call<FoodFacts>,
-                response: Response<FoodFacts>
-            ) {
-                if(response.isSuccessful()){
-                    /*val alertDialog: AlertDialog? = this@CameraActivity?.let {
-                        val builder = AlertDialog.Builder(it)
-                        builder.apply {
-                            setPositiveButton("Retour",
-                                DialogInterface.OnClickListener { dialog, id ->
-                                    // User clicked OK button
-                                })
-                            setNegativeButton("Continuer à Scanner",
-                                DialogInterface.OnClickListener { dialog, id ->
-                                    // User cancelled the dialog
-                                })
-                        }
-                        // Set other dialog properties
-
-                        // Create the AlertDialog
-                        builder.create()
-                    }
-                    alertDialog?.create()*/
-                    Log.v("reqResponse", response.body()?.product?.product_name)
-                }
-            }
-
-            override fun onFailure(call: Call<FoodFacts>, t: Throwable) {
-                Log.v("reqResponse", "Failed Request: $t")
-            }
-        })
+        val intent = Intent()
+        intent.putExtra("barcode", resultCode)
+        setResult(RESULT_OK, intent)
+        finish()
 
         // If you would like to resume scanning, call this method below:
         mScannerView!!.resumeCameraPreview(this)
