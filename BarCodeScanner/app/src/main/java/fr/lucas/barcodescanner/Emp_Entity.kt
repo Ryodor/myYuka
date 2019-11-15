@@ -5,14 +5,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class Emp_Entity {
+data class Emp_Entity (
 
-    @PrimaryKey
-    var emp_id : Int = 0
+    @PrimaryKey(autoGenerate = true)
+    var emp_id : Int,
 
     @ColumnInfo (name = "EMP_NAME")
-    var emp_name : String = ""
+    var emp_name : String = "",
 
-    @ColumnInfo (name = "EMP_POST")
-    var emp_post : String = ""
-}
+    @ColumnInfo (name = "EMP_IMG")
+    var emp_img : String = ""
+)

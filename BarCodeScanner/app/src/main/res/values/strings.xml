@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BarCodeScanner</string>
+    <string name="textview">TextView</string>
 </resources>
